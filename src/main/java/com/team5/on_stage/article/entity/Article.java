@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
@@ -13,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "article")
+@Where(clause = "is_deleted = false")
 public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,10 +32,14 @@ public class Article {
 
     //기사 내용
     @Lob
-    @Column(name="content",nullable = false)
+    @Column(name="content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
     //기사 링크
     @Column(name="link", nullable = false)
     private String link;
+
+    //삭제 여부
+    @Column(name="is_deleted", nullable = false)
+    private boolean isDeleted;
 }

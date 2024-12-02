@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
@@ -13,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="summary")
+@Where(clause = "is_deleted = false")
 public class Summary {
 
     @Id
@@ -24,6 +27,15 @@ public class Summary {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    //요약 제목
+    private String title;
+
     //요약 뉴스
+    @Lob
+    @Column(name="summary", columnDefinition = "TEXT", nullable = false)
     private String summary;
+
+    //삭제 여부
+    @Column(name="is_deleted", nullable = false)
+    private boolean isDeleted;
 }

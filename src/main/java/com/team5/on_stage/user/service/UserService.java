@@ -1,14 +1,22 @@
 package com.team5.on_stage.user.service;
 
+import com.team5.on_stage.global.config.auth.dto.CustomOAuth2User;
 import com.team5.on_stage.global.constants.ErrorCode;
 import com.team5.on_stage.global.exception.GlobalException;
+import com.team5.on_stage.socialLink.entity.SocialLink;
+import com.team5.on_stage.socialLink.repository.SocialLinkRepository;
+import com.team5.on_stage.theme.entity.Theme;
+import com.team5.on_stage.theme.repository.ThemeRepository;
 import com.team5.on_stage.user.dto.SignUpDto;
+import com.team5.on_stage.user.dto.SignUpUserDto;
 import com.team5.on_stage.user.dto.UpdateUserDto;
-import com.team5.on_stage.user.entity.EmailDomain;
-import com.team5.on_stage.user.entity.User;
+import com.team5.on_stage.user.entity.*;
+import com.team5.on_stage.user.repository.TempUserRepository;
 import com.team5.on_stage.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +26,9 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final TempUserRepository tempUserRepository;
+    private final ThemeRepository themeRepository;
+    private final SocialLinkRepository socialLinkRepository;
 
 
     public Boolean signUp(SignUpDto signUpDto) {
@@ -43,8 +54,49 @@ public class UserService {
         return true;
     }
 
+
     @Transactional
-    public Boolean updateUserInformation(String email, UpdateUserDto updateUserDto) {
+    public Boolean signUpUser(String username,
+                              SignUpUserDto signUpUserDto) {
+
+        if (tempUserRepository.findByUsername(username) == null) {
+            throw new GlobalException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        TempUser tempUser = tempUserRepository.findByUsername(username);
+
+        User user = User.builder()
+                .nickname(signUpUserDto.getNickname())
+                .description(signUpUserDto.getDescription())
+                .email(tempUser.getEmail())
+                .emailDomain(EmailDomain.valueOf(extractDomain(tempUser.getEmail())))
+                .name(tempUser.getName())
+                .username(tempUser.getUsername())
+                .verified(Verified.UNVERIFIED)
+                .role(Role.ROLE_USER)
+                .image(null)
+                .build();
+
+        userRepository.save(user);
+        tempUserRepository.deleteByUsername(username);
+
+        Theme theme = Theme.builder()
+                .username(tempUser.getUsername())
+                .build();
+        themeRepository.save(theme);
+
+        SocialLink socialLink = SocialLink.builder()
+                .username(tempUser.getUsername())
+                .build();
+        socialLinkRepository.save(socialLink);
+
+        return true;
+    }
+
+
+    @Transactional
+    public Boolean updateUserInformation(String email,
+                                         UpdateUserDto updateUserDto) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
@@ -77,5 +129,16 @@ public class UserService {
     public static String extractDomain(String email) {
 
         return email.substring(email.indexOf("@") + 1, email.lastIndexOf(".")).toUpperCase();
+    }
+
+
+    // Context에서 메인 파라미터 username 추출
+    public String getUsername() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        CustomOAuth2User oauth2User = (CustomOAuth2User) authentication.getPrincipal();
+
+        return oauth2User.getUsername();
     }
 }

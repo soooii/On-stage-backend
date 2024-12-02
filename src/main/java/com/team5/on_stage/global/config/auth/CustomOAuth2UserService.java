@@ -1,8 +1,12 @@
 package com.team5.on_stage.global.config.auth;
 
 import com.team5.on_stage.global.config.auth.dto.*;
-import com.team5.on_stage.user.entity.Role;
-import com.team5.on_stage.user.entity.User;
+import com.team5.on_stage.socialLink.entity.SocialLink;
+import com.team5.on_stage.socialLink.repository.SocialLinkRepository;
+import com.team5.on_stage.theme.entity.Theme;
+import com.team5.on_stage.theme.repository.ThemeRepository;
+import com.team5.on_stage.user.entity.*;
+import com.team5.on_stage.user.repository.TempUserRepository;
 import com.team5.on_stage.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -16,6 +20,8 @@ import org.springframework.stereotype.Service;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final ThemeRepository themeRepository;
+    private final SocialLinkRepository socialLinkRepository;
 
 
     // 사용자 정보를 확인하기 위한 메서드
@@ -28,15 +34,21 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2Response oAuth2Response = null;
 
-        // 구글은 JSON 응답의 body에 id를 담는다.
         if (registrationId.equals("google")) {
 
             oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
         }
-        // 네이버는 JSON 응답 body의 response 내부에 id를 담는다.
         else if (registrationId.equals("naver")) {
 
             oAuth2Response = new NaverResponse(oAuth2User.getAttributes());
+        }
+        else if (registrationId.equals("github")) {
+
+            oAuth2Response = new GithubResponse(oAuth2User.getAttributes());
+        }
+        else if (registrationId.equals("kakao")) {
+
+            oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
         }
         else {
             return null;
@@ -45,43 +57,75 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 리소스 서버에서 발급 받은 정보로 사용자를 특정하는 아이디 값을 만든다.
         String username = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
 
-        User existData = userRepository.findByUsername(username);
+        User existUser = userRepository.findByUsername(username);
 
-        // Todo: 회원가입 기능 고려하여 수정하기 + dto 사용
-        if (existData == null) {
+        if (existUser == null) {
             // 사용자 정보가 없는 경우, DB에 정보를 새로이 저장한다.
-            User user = new User();
-            user.setUsername(username);
-            user.setEmail(oAuth2Response.getEmail());
-            user.setName(oAuth2Response.getName());
-            user.setRole(Role.valueOf("ROLE_USER"));
+            User newUser = User.builder()
+                    .nickname(getTempNickname())
+                    .username(username)
+                    .email(oAuth2Response.getEmail())
+                    .emailDomain(EmailDomain.valueOf(extractDomain(oAuth2Response.getEmail())))
+                    .name(oAuth2Response.getName())
+                    .verified(Verified.UNVERIFIED)
+                    .role(Role.ROLE_USER)
+                    .image("Default Image") // Todo: 기본 이미지 설정
+                    .build();
 
-            userRepository.save(user);
+            userRepository.save(newUser);
+
+            Theme theme = Theme.builder()
+                    .username(username)
+                    .build();
+            themeRepository.save(theme);
+
+            SocialLink socialLink = SocialLink.builder()
+                    .username(username)
+                    .build();
+            socialLinkRepository.save(socialLink);
 
             UserDto userDto = new UserDto();
             userDto.setUsername(username);
             userDto.setName(oAuth2Response.getName());
-            userDto.setRole("ROLE_USER");
+            userDto.setRole(Role.ROLE_USER);
 
             return new CustomOAuth2User(userDto);
         }
         else {
             // DB에 사용자 정보가 있는 경우, 정보를 업데이트한다.
-            existData.setEmail(oAuth2Response.getEmail());
-            existData.setName(oAuth2Response.getName());
+            existUser.updateOAuthUser(oAuth2User.getName(), oAuth2Response.getEmail());
 
-            userRepository.save(existData);
+            userRepository.save(existUser);
 
             UserDto userDto = new UserDto();
-            userDto.setUsername(existData.getUsername());
+            userDto.setUsername(existUser.getUsername());
             userDto.setName(oAuth2Response.getName());
-            userDto.setRole(existData.getRole().toString());
+            userDto.setRole(existUser.getRole());
 
             return new CustomOAuth2User(userDto);
         }
 
 
+    }
 
+    // Todo: username에서 추출하도록 수정할 것
+    public static String extractDomain(String email) {
 
+        return email.substring(email.indexOf("@") + 1, email.lastIndexOf(".")).toUpperCase();
+    }
+
+    public String getTempNickname() {
+
+        char[] charSet = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+                'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+
+        String tempNickname = "";
+
+        int idx = 0;
+        for (int i = 0; i < 10; i++) {
+            idx = (int) (charSet.length * Math.random());
+            tempNickname += charSet[idx];
+        }
+        return tempNickname;
     }
 }
