@@ -2,6 +2,7 @@ package com.team5.on_stage.user.dto;
 
 import com.team5.on_stage.user.entity.OAuth2Domain;
 import com.team5.on_stage.user.entity.Role;
+import com.team5.on_stage.user.entity.Verified;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +23,8 @@ public class SomeUser {
     private String description;
 
     private String profileImage;
+
+    private Verified verified;
 
     private Role role;
 
