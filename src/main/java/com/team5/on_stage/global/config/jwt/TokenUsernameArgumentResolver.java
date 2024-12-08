@@ -1,5 +1,8 @@
 package com.team5.on_stage.global.config.jwt;
 
+import com.team5.on_stage.global.constants.ErrorCode;
+import com.team5.on_stage.global.exception.GlobalException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -8,8 +11,6 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-
-import javax.crypto.SecretKey;
 
 @RequiredArgsConstructor
 @Component
@@ -32,12 +33,18 @@ public class TokenUsernameArgumentResolver implements HandlerMethodArgumentResol
 
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
 
-        // 헤더 추출
         String authorizationHeader = request.getHeader("Authorization");
 
-        // 토큰 추출
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new GlobalException(ErrorCode.INVALID_AUTH_HEADER);
+        }
+
         String accessToken = authorizationHeader.split(" ")[1];
 
-        return jwtUtil.getUsername(accessToken);
+        if (jwtUtil.isExpired(accessToken)) {
+            throw new GlobalException(ErrorCode.ACCESS_TOKEN_EXPIRED);
+        }
+
+        return jwtUtil.getClaim(accessToken, "username");
     }
 }

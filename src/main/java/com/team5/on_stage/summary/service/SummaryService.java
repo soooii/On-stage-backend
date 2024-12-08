@@ -36,22 +36,27 @@ public class SummaryService {
     private final ChatGPTService chatGPTService;
     private final UserRepository userRepository;
 
-    //해당 userId의 summary 저장
-    public void saveSummary(Long userId) {
-        articleService.save(userId);
-        List<Article> articles = articleRepository.findAllByUserId(userId);
-        User user = userRepository.findById(userId).get();
+    //해당 username의 summary 저장
+    public void saveSummary(String username) {
+
+        //기존 Summary soft delete
+        summaryRespository.softDeleteByUsername(username);
+
+        articleService.save(username);
+
+        List<Article> articles = articleRepository.findAllByUser_Username(username);
+        User user = userRepository.findByUsername(username);
         String allArticles = articles.stream()
                 .map(article -> article.getContent())
                 .collect(Collectors.joining());
 
-        //기존 Summary soft delete
-        summaryRespository.softDeleteByUserId(userId);
-
         String prompt = """
-                다음 문장을 부정적이거나 논란이 될 수 있는 주제는 배제하고,
-                아티스트를 소개할 수 있는 측면에서 제목에 숫자없이 4개의 각 요약을 최대한 다른 내용의 제목과 7문장의 내용으로 작성해줘:%s
-                """.formatted(allArticles);
+        다음 문장을 부정적이거나 논란이 될 수 있는 주제는 배제하고,
+        특히 '%s'와 직접적으로 관련된 뉴스만 포함하여,
+        제목에 번호없이 4개의 각 요약을 최대한 다른 내용의 제목과 7문장의 내용으로 작성해줘:
+        %s
+        """.formatted(username, allArticles);
+
 
         String summarizedNews = chatGPTService.sendMessage(prompt);
 
@@ -90,13 +95,14 @@ public class SummaryService {
     // saveSummary 호출하는 순간부터 3개월마다 자동으로 saveSummary 동작되도록 -> batch
     // 해당 userId의 뉴스 요약 가져오기 (페이지네이션 적용)
     public Page<SummaryResponseDTO> getSummary(SummaryRequestDTO request) {
-        long userId = request.getUserId();
+        String username = request.getUsername();
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
-        List<Summary> summaries = summaryRespository.getSummaryByUserId(userId, pageable);
+        List<Summary> summaries = summaryRespository.getSummaryByUsername(username, pageable);
 
-        //저장된 뉴스가 없을 경우
+
+        //저장된 뉴스가 없을 경우  -> 닉네임 변경 순간 저장되도록 수정 필요
         if(summaries.isEmpty()){
-            saveSummary(request.getUserId());
+            saveSummary(request.getUsername());
             return getSummary(request);
         }
 
@@ -105,14 +111,14 @@ public class SummaryService {
                 .collect(Collectors.toList());
 
         //현재 페이지의 개수가 아닌 해당 유저의 전체 뉴스 요약 개수
-        long total = summaryRespository.countSummaryByUserId(userId);
+        long total = summaryRespository.countSummaryByUsername(username);
 
         return new PageImpl<>(summaryList, pageable, total);
     }
 
     //해당 userId의 summary 삭제
-    public void deleteSummary(Long userId) {
-        summaryRespository.softDeleteByUserId(userId);
+    public void deleteSummary(String username) {
+        summaryRespository.softDeleteByUsername(username);
     }
 
 

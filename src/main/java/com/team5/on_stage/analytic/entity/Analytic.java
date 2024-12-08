@@ -1,11 +1,14 @@
 package com.team5.on_stage.analytic.entity;
 
 import com.team5.on_stage.analytic.constants.EventType;
+import com.team5.on_stage.analytic.constants.SocialLinkType;
+import com.team5.on_stage.link.entity.Link;
+import com.team5.on_stage.linkDetail.entity.LinkDetail;
+import com.team5.on_stage.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "analytic")
@@ -16,21 +19,32 @@ import java.time.LocalDateTime;
 public class Analytic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false)
+    @Column(name = "id", updatable = false, nullable = false)
     private Long uuid;
 
     @Column(name = "event_type")
     @Enumerated(EnumType.STRING)
     private EventType eventType;
 
-    @OneToOne
+    @Column(name = "social_link")
+    @Enumerated(EnumType.STRING)
+    private SocialLinkType socialLinkType;
+
+    @ManyToOne
     @JoinColumn(name = "location_id") // 외래 키 설정
     private LocationInfo locationInfo; // 위치 정보 참조
 
     private LocalDate date;
 
-    //TODO 추후에 연결
-    private Long link;
-    private Long user;
-    private Long linkDetail;
+    @ManyToOne
+    @JoinColumn(name = "username")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "link_id")
+    private Link link;
+
+    @ManyToOne
+    @JoinColumn(name = "linkDetail_id")
+    private LinkDetail linkDetail;
 }
