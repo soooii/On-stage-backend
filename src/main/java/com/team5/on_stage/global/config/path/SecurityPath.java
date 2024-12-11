@@ -7,9 +7,9 @@ public class SecurityPath {
             "/v3/api-docs/**",
 
             /* User */
-            "/login",
             "/logout",
             "/api/auth/reissue",
+            "/login/oauth2/code/{registrationId}"
     };
     public static final String[] ONLY_GET_WHITELIST = {
             /* User */
