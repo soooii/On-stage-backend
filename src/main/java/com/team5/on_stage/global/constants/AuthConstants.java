@@ -12,6 +12,11 @@ public class AuthConstants {
     static public String DEPLOY_FRONT_DOMAIN = "http://59.8.139.239:3000";
     static public String DEPLOY_BACK_DOMAIN = "http://59.8.139.239:5000";
 
+    // Domain - Deploy
+    static public String DEPLOY_DOMAIN2 = "localhost";
+    static public String DEPLOY_FRONT_DOMAIN2 = "http://localhost:3000";
+    static public String DEPLOY_BACK_DOMAIN2 = "http://localhost:5000";
+
     // Token Type
     static public String TYPE_REFRESH = "refresh";
     static public String TYPE_ACCESS = "access";

@@ -14,6 +14,7 @@ public class SecurityPath {
     public static final String[] ONLY_GET_WHITELIST = {
             /* User */
             "/{username}",
+            "/convert/{nickname}",
             /* Summary */
             "/api/summary/{username}",
             /* Analytics */
