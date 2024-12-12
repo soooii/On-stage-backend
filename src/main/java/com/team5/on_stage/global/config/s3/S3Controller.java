@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 
-@Tag(name = "S3Controller", description = "AWS S3 이미지 업로드를 관리하는 컨트롤러")
+@Tag(name = "S3Controller", description = " AWS S3 이미지 업로드를 관리하는 컨트롤러 ")
 @RequiredArgsConstructor
 @RestController
 public class S3Controller {
