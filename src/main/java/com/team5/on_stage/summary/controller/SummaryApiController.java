@@ -20,8 +20,8 @@ public class SummaryApiController {
 
     @Operation(summary = "아티스트 뉴스 요약 조회", description = " 특정 사용자의 아티스트 뉴스 요약 데이터를 페이징 형식으로 조회합니다. ")
     @Parameter(name = "username", description = "조회할 요약 데이터 사용자의 username")
-    @Parameter(name = "page", description = "조회할 페이지 번호")
-    @Parameter(name = "size", description = "페이지당 데이터 개수")
+    @Parameter(name = "page", description = " 조회할 페이지 번호 ")
+    @Parameter(name = "size", description = " 페이지당 데이터 개수 ")
     @GetMapping("/{username}")
     public ResponseEntity<Page<SummaryResponseDTO>> getSummary(
             @PathVariable String username,

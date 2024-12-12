@@ -31,7 +31,7 @@ public class S3Controller {
     }
 
     @Operation(summary = "S3 이미지 업로드", description = "AWS S3에 이미지를 업로드합니다.")
-    @Parameter(name = "data", description = "업로드할 이미지 파일")
+    @Parameter(name = "data", description = " 업로드할 이미지 파일 ")
     @PostMapping("/s3/image/upload")
     @ResponseBody
     public String upload(
