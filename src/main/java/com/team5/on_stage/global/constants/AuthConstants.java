@@ -12,6 +12,7 @@ public class AuthConstants {
 //    static public String DEPLOY_FRONT_DOMAIN = "http://59.8.139.239:3000";
 //    static public String DEPLOY_BACK_DOMAIN = "http://59.8.139.239:5000";
 
+    // Domain - Deploy DNS
     static public String DEPLOY_DOMAIN = "www.on-stage.link";
     static public String DEPLOY_FRONT_DOMAIN = "www.on-stage.link";
     static public String DEPLOY_BACK_DOMAIN = "www.on-stage.link";
