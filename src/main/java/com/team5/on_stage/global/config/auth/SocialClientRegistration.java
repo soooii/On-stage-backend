@@ -59,7 +59,7 @@ public class SocialClientRegistration {
         return ClientRegistration.withRegistrationId("google")
                 .clientId(googleClientId)
                 .clientSecret(googleClientSecret)
-                .redirectUri(BASE_URL + "/login/oauth2/code/{registrationId}")
+                .redirectUri(BASE_URL + "/api/login/oauth2/code/{registrationId}")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .scope("profile", "email")
                 .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
