@@ -64,7 +64,7 @@ public class SocialClientRegistration {
                 .scope("profile", "email")
                 .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
                 .tokenUri("https://oauth2.googleapis.com/token")
-                .jwkSetUri("https://www.googleapis.com/oauth2/v2/jwks")
+//                .jwkSetUri("https://www.googleapis.com/oauth2/v2/jwks")
                 //.jwkSetUri("https://www.googleapis.com/oauth2/v2/certs")
                 .issuerUri("https://accounts.google.com")
                 .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
