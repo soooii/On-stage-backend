@@ -61,12 +61,12 @@ public class SecurityConfig {
                 .logout(logout -> logout.logoutUrl("/logout"));
 
         http.authorizeHttpRequests((auth) -> auth
-                .requestMatchers(COMMON_WHITELIST).permitAll()
-                .requestMatchers(HttpMethod.GET, SecurityPath.ONLY_GET_WHITELIST).permitAll()
-                .requestMatchers(HttpMethod.POST, SecurityPath.ONLY_POST_WHITELIST).permitAll()
-                .requestMatchers(HttpMethod.DELETE, SecurityPath.ONLY_DELETE_WHITELIST).permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated());
+//                .requestMatchers(COMMON_WHITELIST).permitAll()
+//                .requestMatchers(HttpMethod.GET, SecurityPath.ONLY_GET_WHITELIST).permitAll()
+//                .requestMatchers(HttpMethod.POST, SecurityPath.ONLY_POST_WHITELIST).permitAll()
+//                .requestMatchers(HttpMethod.DELETE, SecurityPath.ONLY_DELETE_WHITELIST).permitAll()
+//                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().permitAll());
 
         http
                 .exceptionHandling(ex -> ex
@@ -76,6 +76,8 @@ public class SecurityConfig {
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, redisService, refreshService), LogoutFilter.class);
 
         http.oauth2Login((oauth2) -> oauth2
+                .authorizationEndpoint(endpoint -> endpoint
+                        .baseUri("/login/oauth2/authorization"))
                 .authorizedClientService(customOAuth2AuthorizedClientService.oAuth2AuthorizedClientService(jdbcTemplate, customClientRegistrationRepo.ClientRegistrationRepository()))
                 .clientRegistrationRepository(customClientRegistrationRepo.ClientRegistrationRepository())
                 .successHandler(oAuth2SuccessHandler)

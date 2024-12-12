@@ -3,6 +3,9 @@ package com.team5.on_stage.user.entity;
 
 import com.team5.on_stage.global.constants.ErrorCode;
 import com.team5.on_stage.global.exception.GlobalException;
+import com.team5.on_stage.user.enums.OAuth2Domain;
+import com.team5.on_stage.user.enums.Role;
+import com.team5.on_stage.user.enums.Verified;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -39,6 +42,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Verified verified;
 
+    @Column(name = "verified_at")
+    private LocalDateTime verifiedAt;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
@@ -47,7 +53,7 @@ public class User {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "oauth2_domain", nullable = false, updatable = false)
-    private OAuth2Domain OAuth2Domain;
+    private com.team5.on_stage.user.enums.OAuth2Domain OAuth2Domain;
 
     // 소셜 로그인 정보에서 가져온 이메일
     // Todo: 이메일이 없을 수도 있다. (ex: 깃허브) 필요한가?
@@ -68,8 +74,11 @@ public class User {
     @Column(name = "deactivated_at")
     private LocalDateTime deactivatedAt;
 
+    @Column(name = "subscribe")
+    private Integer subscribe;
 
-    private int subscribed;
+    @Column(name = "subscribed")
+    private Integer subscribed;
 
 
     @Builder
@@ -97,6 +106,8 @@ public class User {
         this.createdAt = LocalDateTime.now();
         this.description = "나를 소개하는 한마디";
         this.profileImage = "https://s3-on-stage.s3.ap-northeast-2.amazonaws.com/profileImages/defaultProfile.jpg";
+        this.subscribe = 0;
+        this.subscribed = 0;
     }
 
     public void updateOAuthUser(String name, String email) {
@@ -113,6 +124,19 @@ public class User {
     public void unsubscribe() {
         if (this.subscribed > 0) {
             this.subscribed--;
+        }
+        else {
+            throw new GlobalException(ErrorCode.SUBSCRIBE_CANNOT_BE_MINUS);
+        }
+    }
+
+    public void subscribed() {
+        this.subscribe++;
+    }
+
+    public void unsubscribed() {
+        if (this.subscribe > 0) {
+            this.subscribe--;
         }
         else {
             throw new GlobalException(ErrorCode.SUBSCRIBE_CANNOT_BE_MINUS);

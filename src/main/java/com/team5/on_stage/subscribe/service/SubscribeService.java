@@ -2,8 +2,7 @@ package com.team5.on_stage.subscribe.service;
 
 import com.team5.on_stage.global.constants.ErrorCode;
 import com.team5.on_stage.global.exception.GlobalException;
-import com.team5.on_stage.link.entity.Link;
-import com.team5.on_stage.link.repository.LinkRepository;
+import com.team5.on_stage.subscribe.SubscribedUserDto;
 import com.team5.on_stage.subscribe.entity.Subscribe;
 import com.team5.on_stage.subscribe.repository.SubscribeRepository;
 import com.team5.on_stage.user.entity.User;
@@ -11,6 +10,9 @@ import com.team5.on_stage.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -21,40 +23,81 @@ public class SubscribeService {
 
 
     @Transactional
-    public Boolean subscribeLink(String subscriber, String subscribed) {
+    public Boolean subscribeLink(String subscriber, String subscribedNickname) {
 
-        if (subscriber.equals(subscribed)) {
-            throw new GlobalException(ErrorCode.CANNOT_SUBSCRIBE_SELF);
-        }
 
-        User user = userRepository.findByUsername(subscriber);
-
-        if (user == null) {
+        User subscribeUser = userRepository.findByUsername(subscriber);
+        if (subscribeUser == null) {
             throw new GlobalException(ErrorCode.USER_NOT_FOUND);
         }
 
-        User subscribedUser = userRepository.findByUsername(subscribed);
-
+        User subscribedUser = userRepository.findByNickname(subscribedNickname);
         if (subscribedUser == null) {
             throw new GlobalException(ErrorCode.USER_NOT_FOUND);
         }
 
-        // Subscribe 기록이 없으면 추가, 있으면 삭제
-        if (!subscribeRepository.existsSubscribeBySubscriberAndSubscribed(subscriber, subscribed)) {
+        if (subscriber.equals(subscribedUser.getUsername())) {
+            throw new GlobalException(ErrorCode.CANNOT_SUBSCRIBE_SELF);
+        }
 
-            Subscribe subscribe = new Subscribe(user, subscribedUser);
+        // Subscribe 기록이 없으면 추가, 있으면 삭제
+        if (!subscribeRepository.existsSubscribeBySubscriberAndSubscribed(subscriber, subscribedNickname)) {
+
+            Subscribe subscribe = new Subscribe(subscribeUser, subscribedUser);
             subscribeRepository.save(subscribe);
 
+            subscribeUser.subscribed();
             subscribedUser.subscribe();
 
         } else {
 
-            subscribeRepository.deleteSubscribeBySubscriberAndSubscribed(subscriber, subscribed);
+            subscribeRepository.deleteSubscribeBySubscriberAndSubscribed(subscriber, subscribedNickname);
 
+            subscribeUser.unsubscribed();
             subscribedUser.unsubscribe();
 
         }
         return true;
     }
 
+
+    public List<SubscribedUserDto> getSubscribedList(String subscriberUsername) {
+
+        User subscriber = userRepository.findByUsername(subscriberUsername);
+        if (subscriber == null) {
+            throw new GlobalException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        List<Subscribe> subscribes = subscribeRepository.findAllBySubscriber(subscriber);
+
+        return subscribes.stream()
+                .map(subscribe -> {
+                    User subscribedUser = subscribe.getSubscribed();
+                    return SubscribedUserDto.builder()
+                            .nickname(subscribedUser.getNickname())
+                            .profileImage(subscribedUser.getProfileImage())
+                            .verified(subscribedUser.getVerified())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<SubscribedUserDto> getSubscribeList (String subscriberUsername) {
+
+        User subscriber = userRepository.findByUsername(subscriberUsername);
+        if (subscriber == null) {
+            throw new GlobalException(ErrorCode.USER_NOT_FOUND);
+        }
+        List<Subscribe> subscribes = subscribeRepository.findAllBySubscribed(subscriber);
+        return subscribes.stream()
+                .map(subscribe -> {
+                    User subscribedUser = subscribe.getSubscribed();
+                    return SubscribedUserDto.builder()
+                            .nickname(subscribedUser.getNickname())
+                            .profileImage(subscribedUser.getProfileImage())
+                            .verified(subscribedUser.getVerified())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
 }
