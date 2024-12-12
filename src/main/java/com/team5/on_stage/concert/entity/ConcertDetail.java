@@ -32,14 +32,13 @@ public class ConcertDetail {
     @Column(name = "director")
     private String prfcrew;
 
-    @Column(name = "place_id", nullable = false, insertable = false, updatable = false) // 중복 매핑 방지
+    @Column(name = "place_id", nullable = false)
     private String mt10id;
 
     @OneToMany(mappedBy = "concertDetail", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Relate> relate;
 
-    @OneToOne(fetch = FetchType.LAZY)  // Lazy Loading 추천
-    @JoinColumn(name = "place_id")
+    @OneToOne(mappedBy = "concertDetail", cascade = CascadeType.ALL, orphanRemoval = true)
     private ConcertPlace concertPlace;
 
     @LastModifiedDate
