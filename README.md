@@ -9,9 +9,6 @@
 - [프로젝트 노션 링크](https://www.notion.so/elice-track/On-stage-13d2bb984257806e8077f6b1a009ca61)
 - [와이어프레임](https://www.figma.com/design/fjMokfGOPgvKJO29VlIGt1/On-stage%2C-low-wireframe?node-id=23-11&node-type=frame&t=72zKfi5JbfFqyO8p-0)
 - [ERD](https://www.erdcloud.com/d/u2cjEzwbFqdgYj4Rq)
----
-
-- **배포 URL**:
 
 ---
 
