@@ -154,5 +154,6 @@
 ---
 
 ## 🌠 8. API 명세서
+- [API 명세서(Swagger)](https://docs.on-stage.link/swagger-ui/index.html)
 <img src="https://github.com/user-attachments/assets/b8558a4c-798b-43e6-93fa-a413e1fe369e">
 ---
