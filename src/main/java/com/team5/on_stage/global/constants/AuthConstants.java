@@ -14,7 +14,7 @@ public class AuthConstants {
 
     static public String DEPLOY_DOMAIN = "https://www.on-stage.link";
     static public String DEPLOY_FRONT_DOMAIN = "https://www.on-stage.link";
-    static public String DEPLOY_BACK_DOMAIN = "https://www.on-stage.link";
+    static public String DEPLOY_BACK_DOMAIN = "https://api.on-stage.link";
 
     // Token Type
     static public String TYPE_REFRESH = "refresh";

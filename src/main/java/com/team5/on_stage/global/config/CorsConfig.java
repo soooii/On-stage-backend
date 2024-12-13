@@ -25,7 +25,8 @@ public class CorsConfig implements CorsConfigurationSource {
                 "http://on-stage.link",
                 "https://on-stage.link",
                 "http://www.on-stage.link",
-                "https://www.on-stage.link"));
+                "https://www.on-stage.link",
+                "https://api.on-stage.link"));
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));

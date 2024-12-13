@@ -12,7 +12,7 @@ import static com.team5.on_stage.global.constants.AuthConstants.DEPLOY_BACK_DOMA
 public class SocialClientRegistration {
 
     // application.properties를 대신하여 OAuth 정보를 관리하는 클래스
-    private final String BASE_URL = DEPLOY_BACK_DOMAIN; //"http://localhost:8080";
+    private final String BASE_URL = "https://api.www.on-stage.link"; // DEPLOY_BACK_DOMAIN; //"http://localhost:8080";
 
     @Value("${naver.client.id}")
     private String naverClientId;
@@ -44,7 +44,7 @@ public class SocialClientRegistration {
         return ClientRegistration.withRegistrationId("naver")
                 .clientId(naverClientId)
                 .clientSecret(naverClientSecret)
-                .redirectUri(BASE_URL + "/api/login/oauth2/code/{registrationId}")
+                .redirectUri("https://api.on-stage.link/login/oauth2/code/{registrationId}")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .scope("name", "email")
                 .authorizationUri("https://nid.naver.com/oauth2.0/authorize")
@@ -59,7 +59,7 @@ public class SocialClientRegistration {
         return ClientRegistration.withRegistrationId("google")
                 .clientId(googleClientId)
                 .clientSecret(googleClientSecret)
-                .redirectUri(BASE_URL + "/api/login/oauth2/code/{registrationId}")
+                .redirectUri("https://api.on-stage.link/login/oauth2/code/{registrationId}")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .scope("profile", "email")
                 .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
@@ -77,7 +77,7 @@ public class SocialClientRegistration {
         return ClientRegistration.withRegistrationId("github")
                 .clientId(githubClientId)
                 .clientSecret(githubClientSecret)
-                .redirectUri(BASE_URL + "/api/login/oauth2/code/{registrationId}")
+                .redirectUri("https://api.on-stage.link/login/oauth2/code/{registrationId}")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .scope("read:user", "user:email")
                 .authorizationUri("https://github.com/login/oauth/authorize")
@@ -91,7 +91,7 @@ public class SocialClientRegistration {
     public ClientRegistration kakaoClientRegistration() {
         return ClientRegistration.withRegistrationId("kakao")
                 .clientId(kakaoClientId)
-                .redirectUri(BASE_URL + "/api/login/oauth2/code/{registrationId}")
+                .redirectUri("https://api.on-stage.link/login/oauth2/code/{registrationId}")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .scope("account_email", "profile_nickname")
                 .authorizationUri("https://kauth.kakao.com/oauth/authorize")
