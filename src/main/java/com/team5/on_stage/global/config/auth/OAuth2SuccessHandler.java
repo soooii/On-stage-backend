@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-import static com.team5.on_stage.global.config.auth.cookie.CookieUtil.createCookie;
+import static com.team5.on_stage.global.config.auth.cookie.CookieUtil.sendCookie;
 import static com.team5.on_stage.global.config.jwt.JwtUtil.setErrorResponse;
 import static com.team5.on_stage.global.constants.AuthConstants.DEPLOY_FRONT_DOMAIN;
 
@@ -51,9 +51,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             redisService.setRefreshToken(refreshToken, username);
 
-            response.addCookie(createCookie("access", accessToken, false));
-            response.addCookie(createCookie("refresh", refreshToken, true));
+            sendCookie("access", accessToken, false, response);
+            sendCookie("refresh", refreshToken, true, response);
             response.setStatus(HttpStatus.OK.value());
+
         } catch (Exception e) {
             setErrorResponse(response, ErrorCode.LOGIN_FAILED);
             throw new GlobalException(ErrorCode.LOGIN_FAILED);

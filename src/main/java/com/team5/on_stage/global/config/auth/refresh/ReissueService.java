@@ -4,7 +4,6 @@ import com.team5.on_stage.global.config.jwt.JwtUtil;
 import com.team5.on_stage.global.config.redis.RedisService;
 import com.team5.on_stage.global.constants.ErrorCode;
 import com.team5.on_stage.global.exception.GlobalException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
-import static com.team5.on_stage.global.config.auth.cookie.CookieUtil.createCookie;
-import static com.team5.on_stage.global.config.auth.cookie.CookieUtil.deleteCookie;
+import static com.team5.on_stage.global.config.auth.cookie.CookieUtil.*;
 import static com.team5.on_stage.global.constants.AuthConstants.*;
 import static com.team5.on_stage.global.config.jwt.JwtUtil.setErrorResponse;
 
@@ -30,15 +28,7 @@ public class ReissueService {
 
         /* Refresh Token 검증 */
 
-        String oldRefreshToken = null;
-
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("refresh")) {
-
-                oldRefreshToken = cookie.getValue();
-            }
-        }
+        String oldRefreshToken = getStringValueFromCookies(request, "refresh");
 
         try {
             if (oldRefreshToken == null) {
@@ -72,26 +62,19 @@ public class ReissueService {
         String role = jwtUtil.getClaim(oldRefreshToken, "role");
 
         String newAccessToken = jwtUtil.generateAccessToken(username, nickname, role);
-
         String newRefreshToken = refreshService.generateRefreshToken(username, nickname, role);
 
 
         redisService.deleteRefreshToken(oldRefreshToken);
         redisService.setRefreshToken(newRefreshToken, username);
 
-        Cookie deleteRefreshToken = deleteCookie("refresh");
+        deleteCookie("refresh", response);
+        deleteCookie("access", response);
+        deleteCookie("JSESSIONID", response);
 
         response.setHeader(AUTH_HEADER, AUTH_TYPE + newAccessToken);
-        Cookie deleteAccessToken = deleteCookie("access");
-        Cookie deleteJSessionCookie = deleteCookie("JSESSIONID");
 
-        response.addCookie(deleteRefreshToken);
-        response.addCookie(deleteAccessToken);
-        response.addCookie(deleteJSessionCookie);
-
-        request.getSession().invalidate();
-
-        response.addCookie(createCookie("refresh", newRefreshToken, true));
-        response.addCookie(createCookie("access", newAccessToken, false));
+        sendCookie("refresh", newRefreshToken, true, response);
+        sendCookie("access", newAccessToken, false, response);
     }
 }

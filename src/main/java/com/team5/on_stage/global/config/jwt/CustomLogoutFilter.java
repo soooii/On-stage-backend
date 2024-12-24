@@ -1,6 +1,5 @@
 package com.team5.on_stage.global.config.jwt;
 
-import com.team5.on_stage.global.config.auth.refresh.RefreshService;
 import com.team5.on_stage.global.config.redis.RedisService;
 import com.team5.on_stage.global.constants.ErrorCode;
 import com.team5.on_stage.global.exception.GlobalException;
@@ -17,6 +16,7 @@ import org.springframework.web.filter.GenericFilterBean;
 import java.io.IOException;
 
 import static com.team5.on_stage.global.config.auth.cookie.CookieUtil.deleteCookie;
+import static com.team5.on_stage.global.config.auth.cookie.CookieUtil.getStringValueFromCookies;
 import static com.team5.on_stage.global.config.jwt.JwtUtil.setErrorResponse;
 
 @RequiredArgsConstructor
@@ -24,7 +24,6 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
     private final JwtUtil jwtUtil;
     private final RedisService redisService;
-    private final RefreshService refreshService;
 
     @Override
     public void doFilter(ServletRequest request,
@@ -54,21 +53,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         /* 토큰 검증 */
 
-        String refreshToken = null;
-
-        try {
-            Cookie[] cookies = request.getCookies();
-
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("refresh")) {
-                    refreshToken = cookie.getValue();
-                }
-            }
-
-        } catch (Exception e) {
-            setErrorResponse(response, ErrorCode.BAD_REQUEST_TOKEN);
-            throw new GlobalException(ErrorCode.BAD_REQUEST_TOKEN);
-        }
+        String refreshToken = getStringValueFromCookies(request, "refresh");
 
         if (refreshToken == null) {
             setErrorResponse(response, ErrorCode.BAD_REQUEST_TOKEN);
@@ -95,15 +80,9 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         redisService.deleteRefreshToken(refreshToken);
 
-        Cookie deleteRefreshCookie = deleteCookie("refresh");
-        Cookie deleteAccessCookie = deleteCookie("access");
-        Cookie deleteJSessionCookie = deleteCookie("JSESSIONID");
-
-        response.addCookie(deleteRefreshCookie);
-        response.addCookie(deleteAccessCookie);
-        response.addCookie(deleteJSessionCookie);
-
-        request.getSession().invalidate();
+        deleteCookie("refresh", response);
+        deleteCookie("access", response);
+        deleteCookie("JSESSIONID", response);
 
         response.setStatus(HttpServletResponse.SC_OK);
     }
