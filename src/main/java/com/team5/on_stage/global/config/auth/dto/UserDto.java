@@ -4,6 +4,8 @@ import com.team5.on_stage.user.enums.Role;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Map;
+
 @Getter
 @Setter
 public class UserDto {
@@ -15,4 +17,6 @@ public class UserDto {
     private String username;
 
     private String nickname;
+
+//    private Map<String, Object> attributes;
 }

@@ -1,6 +1,5 @@
 package com.team5.on_stage.global.config.auth.dto;
 
-import com.team5.on_stage.user.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -19,12 +18,10 @@ public class CustomOAuth2User implements OAuth2User {
     @Override
     public Map<String, Object> getAttributes() {
 
-
         return null;
+//        return userDto.getAttributes();
     }
 
-    // Todo: 필수 구현인데.. Role을 사용하지 않는다.
-    // Todo: BUG - 직렬화로 저장되는 문제
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
@@ -49,12 +46,6 @@ public class CustomOAuth2User implements OAuth2User {
     public String getUsername() {
 
         return userDto.getUsername();
-    }
-
-    // Todo: 임시 사용
-    public Role getRole() {
-
-        return userDto.getRole();
     }
 
     public String getNickname() {
