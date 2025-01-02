@@ -66,7 +66,7 @@ public class ReissueService {
 
 
         redisService.deleteRefreshToken(oldRefreshToken);
-        redisService.setRefreshToken(newRefreshToken, username);
+        redisService.setRefreshToken(newRefreshToken);
 
         deleteCookie("refresh", response);
         deleteCookie("access", response);

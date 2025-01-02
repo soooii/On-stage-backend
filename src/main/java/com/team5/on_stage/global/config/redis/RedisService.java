@@ -19,9 +19,7 @@ public class RedisService {
 
     /* Refresh Token */
 
-    // Todo: Transactional 어노테이션 필요성
-    // Todo: 현재 키와 값이 동일한 형태. 다른 저장 형태를 고민해볼 것
-    public void setRefreshToken(String refreshToken, String username) {
+    public void setRefreshToken(String refreshToken) {
 
         String key = "RefreshToken:" + refreshToken;
 

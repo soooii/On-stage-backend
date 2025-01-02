@@ -52,7 +52,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             String refreshToken = refreshService.generateRefreshToken(username, nickname, role);
 
-            redisService.setRefreshToken(refreshToken, username);
+            redisService.setRefreshToken(refreshToken);
 
             sendCookie("access", accessToken, false, response);
             sendCookie("refresh", refreshToken, true, response);

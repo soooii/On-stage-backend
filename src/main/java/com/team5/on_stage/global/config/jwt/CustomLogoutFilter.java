@@ -7,7 +7,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +59,6 @@ public class CustomLogoutFilter extends GenericFilterBean {
             throw new GlobalException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        // Todo: 필요성
         if (jwtUtil.isExpired(refreshToken)) {
             setErrorResponse(response, ErrorCode.REFRESH_TOKEN_EXPIRED);
             throw new GlobalException(ErrorCode.REFRESH_TOKEN_EXPIRED);
